@@ -23,7 +23,6 @@ ${bold}Available options:${normal}
 -b, --bucket string      S3 bucket name
 -n, --name string        Backup name, acts as a S3 path prefix
 -p, --path string        Path to the file or directory to backup
---storage-class string   S3 storage class (default "GLACIER")
 --dry-run                Don't upload files
 
 If the BACKUP_PATH is a directory:
@@ -53,9 +52,7 @@ main() {
   # common rclone parameters
   rclone_args=(
     "-P"
-    "--s3-storage-class" "$storage_class"
-    "--s3-upload-concurrency" 8
-    "--s3-no-check-bucket"
+    "--transfers" 32
   )
 
   if [[ -f "$root_path" ]]; then
@@ -70,7 +67,6 @@ main() {
 parse_params() {
   split_depth=0
   max_size_gb=1024
-  storage_class="GLACIER"
   dry_run=false
 
   while :; do
@@ -95,10 +91,6 @@ parse_params() {
       ;;
     --split-depth)
       split_depth="${2-}"
-      shift
-      ;;
-    --storage-class)
-      storage_class="${2-}"
       shift
       ;;
     --dry-run) dry_run=true ;;
